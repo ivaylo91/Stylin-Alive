@@ -15,7 +15,30 @@ export default class Application extends EventEmitter {
         let count = 0;
 
         this._beat = new Beat();
+        lyrics.forEach((lyric) => {
+          this._create(lyric);
+        });
+        this._beat.on(Beat.events.BIT, () => {
+          lyrics.forEach((lyric) => {
+            this._create(lyric);
+          });
+        });
 
+        this._beat.on(Beat.events.BIT, () => {
+          this._create(lyrics[count]);
+          count++;
+          if (count === lyrics.length) {
+            count = 0;
+          }
+        });
+
+        this._beat.ontimeout = () => {
+          this._create(lyrics[count]);
+          count++;
+          if (count === lyrics.length) {
+            count = 0;
+          }
+        };
         this._beat.addEventListener(Beat.events.BIT, () => {
             this._create(lyrics[count]);
             count++;
@@ -26,7 +49,6 @@ export default class Application extends EventEmitter {
 
         this.emit(Application.events.READY);
     }
-
     _create(lyric) {
         const message = document.createElement("div");
         message.classList.add("message");
